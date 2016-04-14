@@ -98,7 +98,7 @@ namespace TaskCacheExample
                 if (asyncLazyValue != _cache.AddOrGetExisting(key, new AsyncLazy<T>(valueFactory), _defaultPolicy))
                 {
                     // The awaited value is no more the most recent one.
-                    // Get the most recent value with a recursice call.
+                    // Get the most recent value with a recursive call.
                     return await AddOrGetExisting(key, valueFactory);
                 }
                 return result;
@@ -107,7 +107,7 @@ namespace TaskCacheExample
             {
                 // Task object for the given key failed with exception. Remove the task from the cache.
                 _cache.Remove(key);
-                // Rethrow the exception to be handled by the caller.
+                // Re throw the exception to be handled by the caller.
                 throw;
             }
         }
