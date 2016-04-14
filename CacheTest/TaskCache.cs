@@ -29,20 +29,20 @@ namespace TaskCacheExample
     public interface ITaskCache
     {
         /// <summary>
-        /// Return from the cache the value for the given key. If value is already present in cache, 
+        /// Return from the cache the value for the given key. If value is already present in cache,
         /// that value will be returned. Otherwise value is first generated with the given method.
         ///
-        /// Return value can be a completed or running task-object. If the task-object is completed, 
-        /// it has run succesfully to completion. Most often when a running task is returned, 
-        /// it is the task returned by the function the caller has given as a parameter, but the 
-        /// returned task might also have a different origin (from another call to this same method). 
-        /// If the cache contains a task that will end up throwing an exception in the future, the same 
-        /// task instance is returned to all the callers of this method. This means that any given 
-        /// caller of this method should anticipate the type of exceptions that could be thrown from 
+        /// Return value can be a completed or running task-object. If the task-object is completed,
+        /// it has run succesfully to completion. Most often when a running task is returned,
+        /// it is the task returned by the function the caller has given as a parameter, but the
+        /// returned task might also have a different origin (from another call to this same method).
+        /// If the cache contains a task that will end up throwing an exception in the future, the same
+        /// task instance is returned to all the callers of this method. This means that any given
+        /// caller of this method should anticipate the type of exceptions that could be thrown from
         /// the updateFunc used by any of the caller of this method.
-        /// 
-        /// To prevent the problem described above, as a convention, all the call sites of his method 
-        /// (if more than one) should use the same updateFunc-parameter and also be prepared for the 
+        ///
+        /// To prevent the problem described above, as a convention, all the call sites of his method
+        /// (if more than one) should use the same updateFunc-parameter and also be prepared for the
         /// exceptions that the the updateFunc could throw.
         /// </summary>
         /// <typeparam name="T">Type of the value.</typeparam>
@@ -83,7 +83,7 @@ namespace TaskCacheExample
 
             var asyncLazyValue = new AsyncLazy<T>(valueFactory);
             var existingValue = (AsyncLazy<T>)_cache.AddOrGetExisting(key, asyncLazyValue, _defaultPolicy);
-        
+
             if (existingValue != null)
             {
                 asyncLazyValue = existingValue;
@@ -93,7 +93,8 @@ namespace TaskCacheExample
             {
                 var result = await asyncLazyValue;
 
-                // Cachesta saatu Task on valmistunut. Tarkastetaan, että odotettu Task ei ole vanhentunut sillä aikaa, kun sitä on odotettu.
+                // The awaited Task has completed. Check that the task still is the same version
+                // that the cache returns (i.e. the awaited task has not been invalidated during the await).
                 if (asyncLazyValue != _cache.AddOrGetExisting(key, new AsyncLazy<T>(valueFactory), _defaultPolicy))
                 {
                     // The awaited value is no more the most recent one.
@@ -129,4 +130,3 @@ namespace TaskCacheExample
         }
     }
 }
-
