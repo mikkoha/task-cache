@@ -281,15 +281,12 @@ namespace TaskCacheExample.Tests
         }
 
         /// <summary>
-        /// Voi olla tilanne, jossa
-        /// - A hakee taskin cachesta ja alkaa odottaa (await) sitä.
-        /// - Arvo invalidoidaan sillä aikaa kun odotus on kesken.
-        /// - Tällöin A:lle pitäisi tarjota odotuksen (await) pääteeksi tuoreempi arvo, eikä valmiiksi vanhentunutta.
-        ///
-        /// Test following scenario:
+        /// Test the following scenario:
         /// - Cache user A gets a Task from the cache and starts to await it.
         /// - While A is awaiting, the value is invalidated.
-        /// - After the A's await is done, A should have a result that was generated after the invalidation, and not the original (now invalidated) result that A started to await in the first step. This "result swich" should be invicible to A.
+        /// - After the A's await is done, A should have a result that was generated after the invalidation,
+        /// and not the original (now invalidated) result that A started to await in the first step. This
+        /// "result swich" should be invicible to A.
         /// </summary>
         /// <returns></returns>
         [Test]
