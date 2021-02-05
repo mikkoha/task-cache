@@ -379,6 +379,47 @@ namespace TaskCache
         }
 
 
+        [Fact]
+        public async Task AddOrGetExisting_InvalidatesCompletedResultsWhenExpirationOnCompletionSet() {
+            string key = "key";
+            string value = "test";
+
+            //Configure so that tasks should be immediately removed from the cache the instant they complete.
+            var expirationPolicy = new TaskCacheItemPolicy { ExpirationOnCompletion = true };
+
+            var valueFactoryStarted = new ManualResetEvent(false);
+            var valueFactoryContinue = new ManualResetEvent(false);
+
+            Func<Task<TestValue>> valueFactory = () => {
+                return Task.Factory.StartNew(() => {
+                    valueFactoryStarted.Set();
+                    valueFactoryContinue.WaitOne();
+                    return new TestValue(value);
+                });
+            };
+
+            //First assert that the value is not yet in the cache
+            Assert.False(_cache.Contains(key));
+
+            var cacheUserTask = _cache.AddOrGetExisting(key, valueFactory, expirationPolicy);
+
+            // Wait until the value get from cache is in the middle of the value generation.
+            // At this point, a Task that is running but not completed has been added to the cache.
+            valueFactoryStarted.WaitOne();
+
+            // While the value generation is still running, confirm that it is present in the cache.
+            Assert.True(_cache.Contains(key));
+
+            // Let value generation run to completion.
+            valueFactoryContinue.Set();
+
+            await cacheUserTask;
+
+            // Assert that the value has now been invalidated and removed from the cache
+            Assert.False(_cache.Contains(key));
+        }
+
+
         private async Task SilentlyHandleFaultingTask(Task task, string expectedExceptionMessage) {
             try {
                 await task;
