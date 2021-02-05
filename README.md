@@ -1,5 +1,5 @@
 # TaskCache
-[See my blog post for full explanation.](http://www.mikkohaapanen.com/net-c-cache-class-for-caching-task-objects/)
+[See my blog post for full explanation.](https://tech.mikkohaapanen.com/net-c-cache-class-for-caching-task-objects/)
 
 TaskCache is a C# .NET custom cache implementation targeted for use cases, where long lasting Task-operations need to be cached.
 
