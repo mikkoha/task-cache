@@ -13,7 +13,7 @@ namespace TaskCache
         /// that value will be returned. Otherwise value is first generated with the given method.
         ///
         /// Return value can be a completed or running task-object. If the task-object is completed,
-        /// it has run succesfully to completion. Most often when a running task is returned,
+        /// it has run successfully to completion. Most often when a running task is returned,
         /// it is the task returned by the function the caller has given as a parameter, but the
         /// returned task might also have a different origin (from another call to this same method).
         /// If the cache contains a task that will end up throwing an exception in the future, the same
@@ -28,7 +28,7 @@ namespace TaskCache
         /// <typeparam name="T">Type of the value.</typeparam>
         /// <param name="key">Key that matches the wanted return value.</param>
         /// <param name="valueFactory">Function that is run only if a value for the given key is not already present in the cache.</param>
-        /// <returns>Returned task-object can be completed or running. Note that the task might result in exception.</returns>
+        /// <returns>Returned task-object can be completed or running. Note that the task might result in an exception.</returns>
         Task<T> AddOrGetExisting<T>(string key, Func<Task<T>> valueFactory);
 
         /// <summary>
@@ -38,14 +38,14 @@ namespace TaskCache
         void Invalidate(string key);
 
         /// <summary>
-        /// Does the cache alrealy contain a value for the key.
+        /// Does the cache already contain a value for the key.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         bool Contains(string key);
 
         /// <summary>
-        /// Empties the cache from all entries.
+        /// Empties the cache of all entries.
         /// </summary>
         void Clear();
     }

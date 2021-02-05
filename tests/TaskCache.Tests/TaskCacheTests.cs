@@ -350,6 +350,35 @@ namespace TaskCache
         }
 
 
+        [Fact]
+        public async Task Clear_InvalidatesAllResults()
+        {
+            string testkey1 = "key1";
+            string testkey2 = "key2";
+            string testkey3 = "key3";
+
+            Task<TestValue> ValueFactory() => Task.FromResult(new TestValue("test"));
+
+            Assert.False(_cache.Contains(testkey1));
+            Assert.False(_cache.Contains(testkey2));
+            Assert.False(_cache.Contains(testkey3));
+
+            await _cache.AddOrGetExisting(testkey1, ValueFactory);
+            await _cache.AddOrGetExisting(testkey2, ValueFactory);
+            await _cache.AddOrGetExisting(testkey3, ValueFactory);
+
+            Assert.True(_cache.Contains(testkey1));
+            Assert.True(_cache.Contains(testkey2));
+            Assert.True(_cache.Contains(testkey3));
+
+            _cache.Clear();
+
+            Assert.False(_cache.Contains(testkey1));
+            Assert.False(_cache.Contains(testkey2));
+            Assert.False(_cache.Contains(testkey3));
+        }
+
+
         private async Task SilentlyHandleFaultingTask(Task task, string expectedExceptionMessage) {
             try {
                 await task;
