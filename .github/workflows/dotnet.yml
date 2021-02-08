@@ -3,6 +3,9 @@ name: .NET
 on:
   push:
   pull_request:
+  release:
+    types:
+      - published
 
 env:
   PROJECT_NAME: TaskCache
@@ -11,6 +14,8 @@ env:
   GITHUB_USER: lethek
   GITHUB_FEED: https://nuget.pkg.github.com/lethek/
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NUGET_FEED: https://www.myget.org/F/lethek/api/v2/package
+  NUGET_KEY: ${{ secrets.MYGET_API_KEY }}
 
 jobs:
   build:
@@ -20,45 +25,70 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
+      - name: Setup GitVersion
+        if: matrix.os == 'ubuntu-latest'
+        uses: gittools/actions/gitversion/setup@v0.9.9
+        with:
+          versionSpec: '5.x'        
+      - name: Determine Version
+        if: matrix.os == 'ubuntu-latest'
+        uses: gittools/actions/gitversion/execute@v0.9.9
+        id: gitversion
+        with:
+          useConfigFile: true
+      - name: Pack
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet pack -v normal -c Release --no-restore --include-symbols --include-source -p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersion }} -o nupkg src/$PROJECT_NAME/$PROJECT_NAME.*proj
+      - name: Upload Artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: nupkg
+          path: ./nupkg/*.nupkg  
 
-    - name: Restore dependencies
-      run: dotnet restore
+  # prerelease:
+  #   needs: build
+  #   if: github.ref == 'refs/heads/develop'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download Artifact
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: nupkg
+  #     - name: Push to GitHub Feed
+  #       run: |
+  #         for f in ./nupkg/*.nupkg
+  #         do
+  #           curl -vX PUT -u "$GITHUB_USER:$GITHUB_TOKEN" -F package=@$f $GITHUB_FEED
+  #         done
 
-    - name: Build
-      run: dotnet build --no-restore
-
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-
-    - name: Pack
-      if: matrix.os == 'ubuntu-latest'
-      run: dotnet pack -v normal -c Release --no-restore --include-symbols --include-source -p:PackageVersion=$GITHUB_RUN_ID src/$PROJECT_NAME/$PROJECT_NAME.*proj
-
-    - name: Upload Artifact
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v2
-      with:
-        name: nupkg
-        path: ./src/${{ env.PROJECT_NAME }}/bin/Release/*.nupkg  
-
-  prerelease:
+  deploy:
     needs: build
-    if: github.ref == 'refs/heads/develop'
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
           name: nupkg
-      - name: Push to GitHub Feed
-        run: |
-          for f in ./nupkg/*.nupkg
-          do
-            curl -vX PUT -u "$GITHUB_USER:$GITHUB_TOKEN" -F package=@$f $GITHUB_FEED
-          done
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Push to MyGet Feed
+        run: dotnet nuget push ./nupkg/*.nupkg --source $NUGET_FEED --skip-duplicate --api-key $NUGET_KEY
