@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
 
-namespace TaskCache
+namespace TaskCaching
 {
     public class TaskChangeToken : IChangeToken
     {

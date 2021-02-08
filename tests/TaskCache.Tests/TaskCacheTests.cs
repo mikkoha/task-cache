@@ -7,7 +7,7 @@ using Xunit;
 using Xunit.Sdk;
 
 
-namespace TaskCache
+namespace TaskCaching
 {
     public class TaskCacheTests
     {

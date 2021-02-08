@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace TaskCache
+namespace TaskCaching
 {
     public struct TaskCacheItemPolicy
     {

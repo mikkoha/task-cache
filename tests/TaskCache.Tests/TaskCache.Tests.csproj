@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>TaskCache</RootNamespace>
+    <RootNamespace>TaskCaching</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

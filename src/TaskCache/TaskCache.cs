@@ -8,7 +8,7 @@ using Microsoft.Extensions.Primitives;
 using Nito.AsyncEx;
 
 
-namespace TaskCache
+namespace TaskCaching
 {
     public class TaskCache : ITaskCache
     {

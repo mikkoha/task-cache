@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TaskCache
+namespace TaskCaching
 {
     public interface ITaskCache
     {
