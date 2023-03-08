@@ -5,7 +5,15 @@ namespace TaskCaching;
 
 public class TaskCache : ITaskCache, IDisposable
 {
-    public async Task<T> AddOrGetExisting<T>(string key, Func<Task<T>> valueFactory, TaskCacheEntryOptions options = default)
+    public Task<T> AddOrGetExisting<T>(string key, Func<Task<T>> valueFactory, MemoryCacheEntryOptions options = default)
+        => AddOrGetExistingCore(key, valueFactory, options, false);
+
+
+    public Task<T> AddOrGetExisting<T>(string key, Func<Task<T>> valueFactory, TaskCacheEntryOptions options)
+        => AddOrGetExistingCore(key, valueFactory, options, options?.ExpirationOnCompletion ?? false);
+
+
+    private async Task<T> AddOrGetExistingCore<T>(string key, Func<Task<T>> valueFactory, MemoryCacheEntryOptions options, bool expirationOnCompletion)
     {
         var asyncLazyValue = _cache.GetOrCreate(key, entry => {
             if (options == null) {
@@ -14,7 +22,7 @@ public class TaskCache : ITaskCache, IDisposable
 
             //Customize expiration as per the policy
             entry.SetOptions(options);
-            if (options.ExpirationOnCompletion) {
+            if (expirationOnCompletion) {
                 return new AsyncLazy<T>(
                     () => valueFactory()
                         .ContinueWith(task => {
@@ -25,27 +33,30 @@ public class TaskCache : ITaskCache, IDisposable
                         .Unwrap()
                 );
             }
+
             return new AsyncLazy<T>(valueFactory);
         });
 
         try {
             var result = await asyncLazyValue.ConfigureAwait(false);
 
-            // The awaited Task has completed. Check that the task still is the same version
-            // that the cache returns (i.e. the awaited task has not been invalidated during the await).
+            //The awaited Task has completed. Check that the task still is the same version
+            //that the cache returns (i.e. the awaited task has not been invalidated during the await).
             if (_cache.TryGetValue(key, out var existingValue)) {
                 if (existingValue != asyncLazyValue) {
                     // The awaited value is no more the most recent one.
                     // Get the most recent value with a recursive call.
-                    return await AddOrGetExisting(key, valueFactory, options).ConfigureAwait(false);
+                    return await AddOrGetExistingCore(key, valueFactory, options, expirationOnCompletion)
+                        .ConfigureAwait(false);
                 }
             }
 
             return result;
+
         } catch (Exception) {
-            // Task object for the given key failed with exception. Remove the task from the cache.
+            //Task object for the given key failed with exception. Remove the task from the cache.
             _cache.Remove(key);
-            // Re throw the exception to be handled by the caller.
+            //Re-throw the exception to be handled by the caller.
             throw;
         }
     }
