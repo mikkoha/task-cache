@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Xunit;
 using Xunit.Sdk;
 
@@ -385,7 +380,7 @@ namespace TaskCaching
             string value = "test";
 
             //Configure so that tasks should be immediately removed from the cache the instant they complete.
-            var expirationPolicy = new TaskCacheItemPolicy { ExpirationOnCompletion = true };
+            var expirationPolicy = new TaskCacheEntryOptions { ExpirationOnCompletion = true };
 
             var valueFactoryStarted = new ManualResetEvent(false);
             var valueFactoryContinue = new ManualResetEvent(false);
