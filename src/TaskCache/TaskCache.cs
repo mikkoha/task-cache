@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
 
 
 namespace TaskCaching;
@@ -9,25 +8,23 @@ public class TaskCache : ITaskCache, IDisposable
     public async Task<T> AddOrGetExisting<T>(string key, Func<Task<T>> valueFactory, TaskCacheEntryOptions options = default)
     {
         var asyncLazyValue = _cache.GetOrCreate(key, entry => {
-            //Add a common expiration token which is used for clearing the cache
-            entry.AddExpirationToken(new CancellationChangeToken(_cts.Token));
-
-            //Customize expiration as per the policy
-            if (options != null) {
-                entry.SetOptions(options);
-                if (options.ExpirationOnCompletion) {
-                    return new AsyncLazy<T>(
-                        () => valueFactory()
-                            .ContinueWith(task => {
-                                //Add an expiration token which triggers when the Task has completed (succeeded/failed/cancelled)
-                                entry.AddExpirationToken(new TaskChangeToken(task));
-                                return task;
-                            })
-                            .Unwrap()
-                    );
-                }
+            if (options == null) {
+                return new AsyncLazy<T>(valueFactory);
             }
 
+            //Customize expiration as per the policy
+            entry.SetOptions(options);
+            if (options.ExpirationOnCompletion) {
+                return new AsyncLazy<T>(
+                    () => valueFactory()
+                        .ContinueWith(task => {
+                            //Add an expiration token which triggers when the Task has completed (succeeded/failed/cancelled)
+                            entry.AddExpirationToken(new TaskChangeToken(task));
+                            return task;
+                        })
+                        .Unwrap()
+                );
+            }
             return new AsyncLazy<T>(valueFactory);
         });
 
@@ -63,21 +60,11 @@ public class TaskCache : ITaskCache, IDisposable
 
 
     public void Clear()
-    {
-        var cts = Interlocked.Exchange(ref _cts, new CancellationTokenSource());
-        cts.Cancel();
-        cts.Dispose();
-    }
+        => _cache.Clear();
 
 
     public void Dispose()
-    {
-        _cts?.Dispose();
-        _cache?.Dispose();
-    }
-
-
-    private CancellationTokenSource _cts = new();
+        => _cache?.Dispose();
 
 
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
