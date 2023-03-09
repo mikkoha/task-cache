@@ -14,11 +14,11 @@ Its features ensure that:
 
 Currently there are two packages/projects:
 
-## TaskCaching.Microsoft.Extensions.Caching.Memory
+## 1. TaskCaching.Microsoft.Extensions.Caching.Memory
 
 **This should probably be the go-to implementation right now.**
 
-The *TaskCaching.Microsoft.Extensions.Caching.Memory* project has a dependency on ANY version of
+The *TaskCaching.Microsoft.Extensions.Caching.Memory* package has a dependency on and supports ANY version of
 Microsoft's [Microsoft.Extensions.Caching.Memory](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory) NuGet package.
 
 It adds an `IMemoryCache.GetOrCreateTask<T>(...)` extension method that persists `Lazy<Task<T>>` objects in the cache, fulfilling the above mentioned features.
@@ -35,7 +35,7 @@ Install the NuGet package first, E.g.:
 dotnet add package TaskCaching.Microsoft.Extensions.Caching.Memory
 ```
 
-Now simply take an existing MemoryCache object or create a new one and use the GetOrCreateTask extension-method:
+Now simply take an existing MemoryCache object or create a new one and use the `GetOrCreateTask` extension-method:
 
 ```csharp
 async Task<int> DoSomeSlowTask(int i) {
@@ -82,12 +82,12 @@ Assert.NotEqual(value1, value2);
 ```
 
 
-## TaskCaching
+## 2. TaskCaching
 
-The `ITaskCache` and `TaskCache` in this are legacy of the original project.
+The `ITaskCache` and `TaskCache` in the *TaskCaching* package are legacy of the original project.
 
 Refer to the earlier blog post (https://tech.mikkohaapanen.com/net-c-cache-class-for-caching-task-objects/) to read more about this.
 
 The blog post may be quite old now, but is mostly still relevant. The primary things that have changed are:
- * TaskCache USED to use System.Runtime.Caching.MemoryCache internally, but now uses [Microsoft.Extensions.Caching.Memory](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory) instead.
+ * TaskCache USED to use [System.Runtime.Caching.MemoryCache](https://www.nuget.org/packages/System.Runtime.Caching) internally, but now uses [Microsoft.Extensions.Caching.Memory](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory) instead.
  * TaskCache is now just a thin wrapper around a MemoryCache instance and calls the `GetOrCreateTask` extension method.

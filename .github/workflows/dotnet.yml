@@ -54,16 +54,16 @@ jobs:
           ${{ github.workspace }}/artifacts/*.nupkg
           ${{ github.workspace }}/artifacts/*.snupkg
 
-    - name: Push (Pre-release)
-      if: ${{ steps.gitversion.outputs.nuGetPreReleaseTag != '' }}
-      uses: lethek/os-specific-run@v1.0.6
-      with:
-        linux: dotnet nuget push "${{ github.workspace }}/artifacts/*.nupkg" -s ${{ secrets.MYGET_SOURCE }} -k ${{ secrets.MYGET_API_KEY }} --skip-duplicate
-        windows: dotnet nuget push "${{ github.workspace }}\artifacts\*.nupkg" -s ${{ secrets.MYGET_SOURCE }} -k ${{ secrets.MYGET_API_KEY }} --skip-duplicate
-
-    #- name: Push (Release)
-    #  if: ${{ steps.gitversion.outputs.nuGetPreReleaseTag == '' }}
+    #- name: Push (Pre-release)
+    #  if: ${{ steps.gitversion.outputs.nuGetPreReleaseTag != '' }}
     #  uses: lethek/os-specific-run@v1.0.6
     #  with:
-    #    linux: dotnet nuget push "${{ github.workspace }}/artifacts/*.nupkg" -s ${{ secrets.NUGET_SOURCE }} -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate
-    #    windows: dotnet nuget push "${{ github.workspace }}\artifacts\*.nupkg" -s ${{ secrets.NUGET_SOURCE }} -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+    #    linux: dotnet nuget push "${{ github.workspace }}/artifacts/*.nupkg" -s ${{ secrets.MYGET_SOURCE }} -k ${{ secrets.MYGET_API_KEY }} --skip-duplicate
+    #    windows: dotnet nuget push "${{ github.workspace }}\artifacts\*.nupkg" -s ${{ secrets.MYGET_SOURCE }} -k ${{ secrets.MYGET_API_KEY }} --skip-duplicate
+
+    - name: Push (Release)
+      if: ${{ steps.gitversion.outputs.nuGetPreReleaseTag == '' }}
+      uses: lethek/os-specific-run@v1.0.6
+      with:
+        linux: dotnet nuget push "${{ github.workspace }}/artifacts/*.nupkg" -s ${{ secrets.NUGET_SOURCE }} -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        windows: dotnet nuget push "${{ github.workspace }}\artifacts\*.nupkg" -s ${{ secrets.NUGET_SOURCE }} -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate
