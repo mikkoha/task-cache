@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 
-namespace TaskCaching;
+namespace TaskCaching.Internals;
 
 internal class AsyncLazy<T> : Lazy<Task<T>>
 {
@@ -11,7 +11,7 @@ internal class AsyncLazy<T> : Lazy<Task<T>>
 
 
     public AsyncLazy(Func<Task<T>> factory)
-        : base(() => Task.Run<T>(factory))
+        : base(() => Task.Run(factory))
     { }
 
 

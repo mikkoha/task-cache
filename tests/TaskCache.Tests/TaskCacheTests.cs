@@ -4,7 +4,7 @@ using Xunit.Sdk;
 
 namespace TaskCaching
 {
-    public class TaskCacheTests
+    public class TaskCacheTests : IDisposable
     {
         /// <summary>
         /// Test that the cache returns the value that the valueFactory function generates.
@@ -13,9 +13,11 @@ namespace TaskCaching
         public async Task AddOrGetExisting_ReturnsValueFromValueFactory()
         {
             string testValue = "value1";
-            Func<Task<TestValue>> valueFactory = () => Task.FromResult(new TestValue(testValue));
 
-            var value = await _cache.AddOrGetExisting("key1", valueFactory);
+            Task<TestValue> ValueFactory()
+                => Task.FromResult(new TestValue(testValue));
+
+            var value = await _cache.AddOrGetExisting("key1", ValueFactory);
 
             Assert.Equal(testValue, value.Value);
         }
@@ -27,22 +29,25 @@ namespace TaskCaching
         /// </summary>
         /// <returns></returns>
         [Fact]
-        public async Task AddOrGetExisting_GeneratesTheValueOnlyOnce() {
+        public async Task AddOrGetExisting_GeneratesTheValueOnlyOnce()
+        {
             string testValue = "value1";
             string testkey = "key1";
             int valueGeneratedTimes = 0;
-            Func<Task<TestValue>> valueFactory = () => {
+
+            Task<TestValue> ValueFactory()
+            {
                 valueGeneratedTimes++;
                 return Task.FromResult(new TestValue(testValue));
-            };
+            }
 
-            var value1 = await _cache.AddOrGetExisting(testkey, valueFactory);
+            var value1 = await _cache.AddOrGetExisting(testkey, ValueFactory);
             Assert.Equal(testValue, value1.Value);
 
-            var value2 = await _cache.AddOrGetExisting(testkey, valueFactory);
+            var value2 = await _cache.AddOrGetExisting(testkey, ValueFactory);
             Assert.Equal(testValue, value2.Value);
 
-            var value3 = await _cache.AddOrGetExisting(testkey, valueFactory);
+            var value3 = await _cache.AddOrGetExisting(testkey, ValueFactory);
             Assert.Equal(testValue, value3.Value);
 
             //Value should be generated only once.
@@ -51,19 +56,22 @@ namespace TaskCaching
 
 
         [Fact]
-        public async Task AddOrGetExisting_ValueIsRebuildAfterInvalidation() {
+        public async Task AddOrGetExisting_ValueIsRebuildAfterInvalidation()
+        {
             string testValue = "value1";
             string testkey = "key1";
             int valueGeneratedTimes = 0;
-            Func<Task<TestValue>> valueFactory = () => {
+
+            Task<TestValue> ValueFactory()
+            {
                 valueGeneratedTimes++;
                 return Task.FromResult(new TestValue(testValue));
-            };
+            }
 
-            var value1 = await _cache.AddOrGetExisting(testkey, valueFactory);
+            var value1 = await _cache.AddOrGetExisting(testkey, ValueFactory);
             Assert.Equal(testValue, value1.Value);
 
-            var value2 = await _cache.AddOrGetExisting(testkey, valueFactory);
+            var value2 = await _cache.AddOrGetExisting(testkey, ValueFactory);
             Assert.Equal(testValue, value2.Value);
 
             //Value should be generated only once.
@@ -71,7 +79,7 @@ namespace TaskCaching
 
             _cache.Invalidate(testkey);
 
-            var value3 = await _cache.AddOrGetExisting(testkey, valueFactory);
+            var value3 = await _cache.AddOrGetExisting(testkey, ValueFactory);
             Assert.Equal(testValue, value3.Value);
 
             //Value should be regenerated after invalidation.
@@ -84,29 +92,34 @@ namespace TaskCaching
         /// (when eviction policies are not causing changes).
         /// </summary>
         [Fact]
-        public async Task AddOrGetExisting_DifferentKeysInCacheFunctionIndependently() {
+        public async Task AddOrGetExisting_DifferentKeysInCacheFunctionIndependently()
+        {
             string testValue1 = "value1";
             string testValue2 = "value2";
             string testkey1 = "key1";
             string testkey2 = "key2";
 
             int value1GeneratedTimes = 0;
-            Func<Task<TestValue>> buildValue1Func = () => {
+
+            Task<TestValue> BuildValue1Func()
+            {
                 value1GeneratedTimes++;
                 return Task.FromResult(new TestValue(testValue1));
-            };
+            }
 
             int value2GeneratedTimes = 0;
-            Func<Task<TestValue>> buildValue2Func = () => {
+
+            Task<TestValue> BuildValue2Func()
+            {
                 value2GeneratedTimes++;
                 return Task.FromResult(new TestValue(testValue2));
-            };
+            }
 
 
-            var value1get1 = await _cache.AddOrGetExisting(testkey1, buildValue1Func);
-            var value2get1 = await _cache.AddOrGetExisting(testkey2, buildValue2Func);
-            var value1get2 = await _cache.AddOrGetExisting(testkey1, buildValue1Func);
-            var value2get2 = await _cache.AddOrGetExisting(testkey2, buildValue2Func);
+            var value1get1 = await _cache.AddOrGetExisting(testkey1, BuildValue1Func);
+            var value2get1 = await _cache.AddOrGetExisting(testkey2, BuildValue2Func);
+            var value1get2 = await _cache.AddOrGetExisting(testkey1, BuildValue1Func);
+            var value2get2 = await _cache.AddOrGetExisting(testkey2, BuildValue2Func);
 
             //Value 1 should be built only once.
             Assert.Equal(1, value1GeneratedTimes);
@@ -121,8 +134,8 @@ namespace TaskCaching
             // Invalidation should affect only the right key-value-pair.
             _cache.Invalidate(testkey1);
 
-            var value1get3 = await _cache.AddOrGetExisting(testkey1, buildValue1Func);
-            var value2get3 = await _cache.AddOrGetExisting(testkey2, buildValue2Func);
+            var value1get3 = await _cache.AddOrGetExisting(testkey1, BuildValue1Func);
+            var value2get3 = await _cache.AddOrGetExisting(testkey2, BuildValue2Func);
 
             //Value 1 should be rebuilt.
             Assert.Equal(2, value1GeneratedTimes);
@@ -135,38 +148,42 @@ namespace TaskCaching
 
 
         [Fact]
-        public async Task AddOrGetExisting_FailedTasksAreNotPersisted() {
+        public async Task AddOrGetExisting_FailedTasksAreNotPersisted()
+        {
             string testValue = "value1";
             string testkey = "key1";
             string exceptionMessage = "First two calls will fail.";
 
             int valueGeneratedTimes = 0;
-            Func<Task<TestValue>> valueFactory = () => {
+
+            Task<TestValue> ValueFactory()
+            {
                 valueGeneratedTimes++;
 
-                return Task.Factory.StartNew(() => {
+                return Task.Run(() => {
                     if (valueGeneratedTimes <= 2) {
                         throw new Exception(exceptionMessage);
                     }
+
                     return new TestValue(testValue);
                 });
-            };
+            }
 
-            var cacheTask = _cache.AddOrGetExisting(testkey, valueFactory);
+            var cacheTask = _cache.AddOrGetExisting(testkey, ValueFactory);
             await SilentlyHandleFaultingTask(cacheTask, exceptionMessage);
             //First value generation should fail.
             Assert.True(cacheTask.IsFaulted);
             //Value should be build 1 times.
             Assert.Equal(1, valueGeneratedTimes);
 
-            cacheTask = _cache.AddOrGetExisting(testkey, valueFactory);
+            cacheTask = _cache.AddOrGetExisting(testkey, ValueFactory);
             await SilentlyHandleFaultingTask(cacheTask, exceptionMessage);
             //Second value generation should fail.
             Assert.True(cacheTask.IsFaulted);
             //Value should be build 2 times, because first failed.
             Assert.Equal(2, valueGeneratedTimes);
 
-            cacheTask = _cache.AddOrGetExisting(testkey, valueFactory);
+            cacheTask = _cache.AddOrGetExisting(testkey, ValueFactory);
             var cacheValue = await cacheTask;
             //Value generation should succeed the third time.
             Assert.True(cacheTask.IsCompleted);
@@ -175,7 +192,7 @@ namespace TaskCaching
             //Cache should return correct value.
             Assert.Equal(testValue, cacheValue.Value);
 
-            cacheTask = _cache.AddOrGetExisting(testkey, valueFactory);
+            cacheTask = _cache.AddOrGetExisting(testkey, ValueFactory);
             cacheValue = await cacheTask;
             //Value generation should succeed the fourth time.
             Assert.True(cacheTask.IsCompleted);
@@ -187,19 +204,19 @@ namespace TaskCaching
 
 
         [Fact]
-        public async Task Contains_ReturnsTrueWhenKeyExists() {
+        public async Task Contains_ReturnsTrueWhenKeyExists()
+        {
             string testkey1 = "key1";
             string testkey2 = "key2";
 
-            Func<Task<TestValue>> valueFactory = () => {
-                return Task.FromResult(new TestValue("test"));
-            };
+            Task<TestValue> ValueFactory()
+                => Task.FromResult(new TestValue("test"));
 
 
             Assert.False(_cache.Contains(testkey1));
             Assert.False(_cache.Contains(testkey2));
 
-            await _cache.AddOrGetExisting(testkey1, valueFactory);
+            await _cache.AddOrGetExisting(testkey1, ValueFactory);
 
             Assert.True(_cache.Contains(testkey1));
             Assert.False(_cache.Contains(testkey2));
@@ -207,30 +224,34 @@ namespace TaskCaching
 
 
         [Fact]
-        public async Task AddOrGetExisting_ExceptionsFromValueGenerationCanBeHandled() {
+        public async Task AddOrGetExisting_ExceptionsFromValueGenerationCanBeHandled()
+        {
             string testkey = "key";
             string testValue = "value";
             string testExceptionMessage = "this is exception";
 
             int valueFactoryCalledTimes = 0;
-            Func<Task<TestValue>> valueFactory = () => {
+
+            Task<TestValue> ValueFactory()
+            {
                 valueFactoryCalledTimes++;
-                return Task.Factory.StartNew(() => {
+                return Task.Run(() => {
                     Thread.Sleep(10);
                     if (valueFactoryCalledTimes != -9999) {
                         // Throw always
                         throw new Exception(testExceptionMessage);
                     }
+
                     return new TestValue(testValue);
                 });
-            };
+            }
 
-            Exception exception = null;
+            Exception exception;
 
             // Use the cache.
             try {
                 var v = await _cache.AddOrGetExisting(testkey, async () => {
-                    var res = await valueFactory();
+                    var res = await ValueFactory();
                     return res.Value;
                 });
                 throw new XunitException("This point should never be reached, because the valueFactory should always throw.");
@@ -244,7 +265,7 @@ namespace TaskCaching
             // Use the cache again.
             try {
                 var v = await _cache.AddOrGetExisting(testkey, async () => {
-                    var res = await valueFactory();
+                    var res = await ValueFactory();
                     return res.Value;
                 });
                 throw new XunitException("This point should never be reached, because the valueFactory should always throw.");
@@ -267,7 +288,8 @@ namespace TaskCaching
         /// </summary>
         /// <returns></returns>
         [Fact]
-        public async Task AddOrGetExisting_DoesNotReturnResultsThatWereInvalidatedDuringAwait() {
+        public async Task AddOrGetExisting_DoesNotReturnResultsThatWereInvalidatedDuringAwait()
+        {
             string key = "key";
             string earlierValue = "first";
             string laterValue = "second";
@@ -281,32 +303,29 @@ namespace TaskCaching
             int valueFactory1Executed = 0;
             int valueFactory2Executed = 0;
 
-            Func<Task<TestValue>> valueFactory1 = () => {
-                return Task.Factory.StartNew(() => {
+            Task<TestValue> ValueFactory1()
+                => Task.Run(() => {
                     firstValueFactoryStarted.Set();
                     firstValueFactoryContinue.WaitOne();
                     valueFactory1Executed++;
                     return new TestValue(earlierValue);
                 });
-            };
 
-            Func<Task<TestValue>> valueFactory2 = () => {
-                return Task.Factory.StartNew(() => {
+            Task<TestValue> ValueFactory2()
+                => Task.Run(() => {
                     laterValueFactoryStarted.Set();
                     laterValueFactoryContinue.WaitOne();
                     valueFactory2Executed++;
                     return new TestValue(laterValue);
                 });
-            };
 
 
-            var cacheUserTask1 = Task.Factory.StartNew(async () => {
-                return await _cache.AddOrGetExisting(key, valueFactory1);
-            });
+            var cacheUserTask1 = Task.Run(async () =>
+                await _cache.AddOrGetExisting(key, ValueFactory1));
 
-            var cacheUserTask2 = Task.Factory.StartNew(async () => {
+            var cacheUserTask2 = Task.Run(async () => {
                 laterTaskStart.WaitOne();
-                return await _cache.AddOrGetExisting(key, valueFactory2);
+                return await _cache.AddOrGetExisting(key, ValueFactory2);
             });
 
             // Wait until the first value get from cache is in the middle of the value generation.
@@ -330,13 +349,13 @@ namespace TaskCaching
             // Let second value generation run to completion.
             laterValueFactoryContinue.Set();
 
-            await Task.WhenAll(new List<Task>() { cacheUserTask1, cacheUserTask2 });
+            await Task.WhenAll(new List<Task>() {cacheUserTask1, cacheUserTask2});
 
 
             //The first fetch from the cache should have returned the value generated by the second fetch, because the first value was invalidated while still running.
-            Assert.Equal(laterValue, cacheUserTask1.Result.Result.Value);
+            Assert.Equal(laterValue, cacheUserTask1.Result.Value);
             //The second fetch should have returned the later value.
-            Assert.Equal(laterValue, cacheUserTask2.Result.Result.Value);
+            Assert.Equal(laterValue, cacheUserTask2.Result.Value);
 
             //The first valueFactory should have been called once.
             Assert.Equal(1, valueFactory1Executed);
@@ -375,28 +394,26 @@ namespace TaskCaching
 
 
         [Fact]
-        public async Task AddOrGetExisting_InvalidatesCompletedResultsWhenExpirationOnCompletionSet() {
+        public async Task AddOrGetExisting_InvalidatesCompletedResultsWhenExpirationOnCompletionSet()
+        {
             string key = "key";
             string value = "test";
-
-            //Configure so that tasks should be immediately removed from the cache the instant they complete.
-            var expirationPolicy = new TaskCacheEntryOptions { ExpirationOnCompletion = true };
 
             var valueFactoryStarted = new ManualResetEvent(false);
             var valueFactoryContinue = new ManualResetEvent(false);
 
-            Func<Task<TestValue>> valueFactory = () => {
-                return Task.Factory.StartNew(() => {
+            Task<TestValue> ValueFactory()
+                => Task.Run(() => {
                     valueFactoryStarted.Set();
                     valueFactoryContinue.WaitOne();
                     return new TestValue(value);
                 });
-            };
 
             //First assert that the value is not yet in the cache
             Assert.False(_cache.Contains(key));
 
-            var cacheUserTask = _cache.AddOrGetExisting(key, valueFactory, expirationPolicy);
+            //Configure so that tasks should be immediately removed from the cache the instant they complete.
+            var cacheUserTask = _cache.AddOrGetExisting(key, ValueFactory, true);
 
             // Wait until the value get from cache is in the middle of the value generation.
             // At this point, a Task that is running but not completed has been added to the cache.
@@ -415,7 +432,8 @@ namespace TaskCaching
         }
 
 
-        private async Task SilentlyHandleFaultingTask(Task task, string expectedExceptionMessage) {
+        private async Task SilentlyHandleFaultingTask(Task task, string expectedExceptionMessage)
+        {
             try {
                 await task;
             } catch (Exception ex) {
@@ -424,15 +442,13 @@ namespace TaskCaching
         }
 
 
+        public void Dispose()
+            => _cache?.Dispose();
+
+
         private readonly ITaskCache _cache = new TaskCache();
 
 
-        private class TestValue
-        {
-            public string Value { get; set; }
-            public TestValue(string value) {
-                Value = value;
-            }
-        }
+        private record TestValue(string Value);
     }
 }
