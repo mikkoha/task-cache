@@ -5,11 +5,11 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{700B61E7-BBDC-4761-9518-264419B96BEC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskCache", "src\TaskCache\TaskCache.csproj", "{3FC8B3BF-1FAF-4634-AA3D-A8EB52E31CE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskCaching", "src\TaskCaching\TaskCaching.csproj", "{3FC8B3BF-1FAF-4634-AA3D-A8EB52E31CE3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2017A594-D847-4D46-AC24-D9753330E700}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskCache.Tests", "tests\TaskCache.Tests\TaskCache.Tests.csproj", "{825A35A4-5A02-4E70-8BB6-DF030855D751}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskCaching.Tests", "tests\TaskCaching.Tests\TaskCaching.Tests.csproj", "{825A35A4-5A02-4E70-8BB6-DF030855D751}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EC470FC8-C833-4FB0-AE0C-AC34E87729D0}"
 	ProjectSection(SolutionItems) = preProject

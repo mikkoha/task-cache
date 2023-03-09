@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TaskCache\TaskCache.csproj" />
+    <ProjectReference Include="..\..\src\TaskCaching\TaskCaching.csproj" />
   </ItemGroup>
 
 </Project>
