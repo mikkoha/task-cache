@@ -16,6 +16,7 @@
     <PackageProjectUrl>https://github.com/mikkoha/task-cache</PackageProjectUrl>
     <PackageTags>Cache;Caching;MemoryCache;Task</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TaskCaching.Microsoft.Extensions.Caching.Memory\TaskCaching.Microsoft.Extensions.Caching.Memory.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\README.md</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
