@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-
-using TaskCaching.Internals;
+﻿using TaskCaching.Internals;
 
 
-namespace TaskCaching;
+namespace Microsoft.Extensions.Caching.Memory;
 
 public static class MemoryCacheExtensions
 {
