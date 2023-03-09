@@ -15,7 +15,7 @@ internal class TaskChangeToken : IChangeToken
     public bool ActiveChangeCallbacks { get; private set; } = true;
 
 
-    public IDisposable RegisterChangeCallback(Action<object> callback, object state)
+    public IDisposable RegisterChangeCallback(Action<object?> callback, object? state)
     {
         try {
             return _task.ContinueWith((t, o) => callback(o), state);

@@ -51,7 +51,7 @@ public static class MemoryCacheExtensions
                         })
                         .Unwrap()
                 )
-        );
+        )!;
 
         try {
             var result = await asyncLazyValue.ConfigureAwait(false);
@@ -120,7 +120,7 @@ public static class MemoryCacheExtensions
                         })
                         .Unwrap()
                 )
-        );
+        )!;
 
         try {
             await asyncLazyValue.ConfigureAwait(false);
