@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-
 using TaskCaching.Internals;
 
 
@@ -7,6 +6,35 @@ namespace TaskCaching;
 
 public static class MemoryCacheExtensions
 {
+    /// <summary>
+    /// <para>Return the <see cref="Task"/> value for a given key from the cache. If the key is not already
+    /// present in cache, <paramref name="valueFactory"/> will be run first to create the Task and it will be
+    /// added to the cache immediately.</para>
+    /// 
+    /// <para>This method differs from <see cref="CacheExtensions.GetOrCreateAsync{TItem}"/>, which only caches
+    /// the result of a Task, after it has successfully completed. Instead, this method caches a Lazy instance
+    /// of the Task itself - allowing long-running/expensive asynchronous operations to be shared and avoiding
+    /// concurrent duplication of work.</para>
+    /// 
+    /// <para>Often when a running Task is returned, it is a Task returned by the <paramref name="valueFactory"/>
+    /// the caller has given as a parameter, but the returned task might also have a different origin (from
+    /// another call elsewhere using the same key and presumably the same factory).</para>
+    /// 
+    /// <para>If the cache contains a task that will throw an exception in the future, the same
+    /// task instance is returned to all the callers of this method. This means that any given
+    /// caller of this method should anticipate the type of exceptions that could be thrown from
+    /// the Task used by any of the callers of this method.</para>
+    /// 
+    /// <para>To prevent the problem described above, as a convention, all the call sites of this method (if more
+    /// than one) should use the same <paramref name="valueFactory"/> parameter and be prepared for the
+    /// exceptions that it could throw.</para>
+    /// </summary>
+    /// <typeparam name="T">Type of the value.</typeparam>
+    /// <param name="cache"></param>
+    /// <param name="key">Key that matches the wanted return value.</param>
+    /// <param name="valueFactory">Function that is run only if a Task for the given key is not already present in the cache.</param>
+    /// <param name="expireOnCompletion">When true removes the Task from the cache as soon as it has completed (succeeded/failed/cancelled).</param>
+    /// <returns>Returned <see cref="Task"/> object may still be running or have already completed. Note that the Task might result in an exception.</returns>
     public static async Task<T> GetOrCreateTask<T>(this IMemoryCache cache, string key, Func<ICacheEntry, Task<T>> valueFactory, bool expireOnCompletion)
     {
         var asyncLazyValue = cache.GetOrCreate(
@@ -39,7 +67,6 @@ public static class MemoryCacheExtensions
             }
 
             return result;
-
         } catch (Exception) {
             //Task object for the given key failed with exception. Remove the task from the cache.
             cache.Remove(key);
