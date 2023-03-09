@@ -36,7 +36,6 @@ jobs:
 
     - name: Restore
       run: dotnet restore
-
     - name: Build
       run: dotnet build -c ${{ env.buildConfiguration }} --no-restore -p:Version=${{ steps.gitversion.outputs.nuGetVersion }} -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} -p:AssemblyVersion=1.0.0.0
 
@@ -62,7 +61,9 @@ jobs:
     #    windows: dotnet nuget push "${{ github.workspace }}\artifacts\*.nupkg" -s ${{ secrets.MYGET_SOURCE }} -k ${{ secrets.MYGET_API_KEY }} --skip-duplicate
 
     - name: Push (Release)
-      if: ${{ steps.gitversion.outputs.nuGetPreReleaseTag == '' && secrets.NUGET_SOURCE != '' && secrets.NUGET_API_KEY != '' }}
+      env:
+        NUGET_SOURCE: ${{ secrets.NUGET_SOURCE }}
+      if: ${{ steps.gitversion.outputs.nuGetPreReleaseTag == '' && env.NUGET_SOURCE != '' }}
       uses: lethek/os-specific-run@v1.0.6
       with:
         linux: dotnet nuget push "${{ github.workspace }}/artifacts/*.nupkg" -s ${{ secrets.NUGET_SOURCE }} -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate
