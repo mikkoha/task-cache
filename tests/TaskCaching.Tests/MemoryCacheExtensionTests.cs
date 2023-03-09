@@ -14,8 +14,7 @@ public class MemoryCacheExtensionTests : IDisposable
         int factoryRunCount = 0;
         string testkey = "key1";
 
-        Task TaskFactory(ICacheEntry entry)
-        {
+        Task TaskFactory(ICacheEntry entry) {
             Interlocked.Increment(ref factoryRunCount);
             return Task.CompletedTask;
         }

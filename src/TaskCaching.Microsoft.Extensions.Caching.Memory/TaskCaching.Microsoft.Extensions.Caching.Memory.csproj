@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RepositoryUrl>https://github.com/mikkoha/task-cache</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <RootNamespace>TaskCaching</RootNamespace>
+    <RootNamespace>Microsoft.Extensions.Caching.Memory</RootNamespace>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Authors>Mikko Haapanen, Michael Monsour</Authors>
@@ -14,10 +14,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TaskCaching.Microsoft.Extensions.Caching.Memory\TaskCaching.Microsoft.Extensions.Caching.Memory.csproj" />
   </ItemGroup>
 
 </Project>
