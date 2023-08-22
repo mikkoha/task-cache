@@ -34,7 +34,7 @@ public static class MemoryCacheExtensions
     /// <param name="taskFactory">Function that is run only if a Task for the given key is not already present in the cache.</param>
     /// <param name="expireOnCompletion">When true removes the Task from the cache as soon as it has completed (succeeded/failed/cancelled).</param>
     /// <returns>Returned <see cref="Task{TResult}"/> object may still be running or have already completed. Note that the Task might result in an exception.</returns>
-    public static async Task<T> GetOrCreateTask<T>(this IMemoryCache cache, string key, Func<ICacheEntry, Task<T>> taskFactory, bool expireOnCompletion = false)
+    public static async Task<T> GetOrCreateTask<T>(this IMemoryCache cache, object key, Func<ICacheEntry, Task<T>> taskFactory, bool expireOnCompletion = false)
     {
         var asyncLazyValue = cache.GetOrCreate(
             key,
@@ -103,7 +103,7 @@ public static class MemoryCacheExtensions
     /// <param name="taskFactory">Function that is run only if a Task for the given key is not already present in the cache.</param>
     /// <param name="expireOnCompletion">When true removes the Task from the cache as soon as it has completed (succeeded/failed/cancelled).</param>
     /// <returns>Returned <see cref="Task"/> object may still be running or have already completed. Note that the Task might result in an exception.</returns>
-    public static async Task GetOrCreateTask(this IMemoryCache cache, string key, Func<ICacheEntry, Task> taskFactory, bool expireOnCompletion = false)
+    public static async Task GetOrCreateTask(this IMemoryCache cache, object key, Func<ICacheEntry, Task> taskFactory, bool expireOnCompletion = false)
     {
         var asyncLazyValue = cache.GetOrCreate(
             key,
