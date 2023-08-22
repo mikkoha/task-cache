@@ -1,5 +1,9 @@
 # TaskCaching
 
+[![NuGet](https://img.shields.io/nuget/v/TaskCaching.svg)](https://www.nuget.org/packages/TaskCaching)
+[![Build](https://github.com/mikkoha/task-cache/actions/workflows/dotnet.yml/badge.svg)](https://github.com/mikkoha/task-cache/actions/workflows/dotnet.yml)
+[![License](https://img.shields.io/github/license/mikkoha/task-cache)](https://github.com/mikkoha/task-cache/blob/master/LICENSE)
+
 [See my blog post for full explanation.](https://tech.mikkohaapanen.com/net-c-cache-class-for-caching-task-objects/)
 
 TaskCaching provides a means for easily caching long-lasting or expensive `Task` operations in .NET.

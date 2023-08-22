@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/mikkoha/task-cache</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Mikko Haapanen, Michael Monsour</Authors>
+    <Copyright>Copyright © 2016-2023 Mikko Haapanen, Michael Monsour</Copyright>
     <Description>Adds support for caching Task objects (rather than results) in Microsoft.Extensions.Caching.Memory.MemoryCache with GetOrCreateTask(), eliminating unnecessary duplicate async operations.</Description>
     <PackageProjectUrl>https://github.com/mikkoha/task-cache</PackageProjectUrl>
     <PackageTags>Cache;Caching;MemoryCache;Task</PackageTags>
@@ -24,10 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\README.md</PackagePath>
-    </None>
+    <None Include="..\..\README.md" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
 </Project>
