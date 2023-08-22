@@ -92,6 +92,6 @@ The `ITaskCache` and `TaskCache` in the *TaskCaching* package are legacy of the 
 
 Refer to the earlier blog post (https://tech.mikkohaapanen.com/net-c-cache-class-for-caching-task-objects/) to read more about this.
 
-The blog post may be quite old now, but is mostly still relevant. The primary things that have changed are:
+The blog post may be quite old now, but is mostly still relevant. The primary things which have changed are:
  * TaskCache USED to use [System.Runtime.Caching.MemoryCache](https://www.nuget.org/packages/System.Runtime.Caching) internally, but now uses [Microsoft.Extensions.Caching.Memory](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Memory) instead.
  * TaskCache is now just a thin wrapper around a MemoryCache instance and calls the `GetOrCreateTask` extension method.

@@ -3,6 +3,10 @@
 
 namespace Microsoft.Extensions.Caching.Memory;
 
+
+/// <summary>
+/// Adds extension methods to the <see cref="IMemoryCache"/> interface for caching <see cref="Task"/> operations.
+/// </summary>
 public static class MemoryCacheExtensions
 {
     /// <summary>
@@ -28,7 +32,7 @@ public static class MemoryCacheExtensions
     /// than one) should use the same <paramref name="taskFactory"/> parameter and be prepared for the
     /// exceptions that it could throw.</para>
     /// </summary>
-    /// <typeparam name="T">Type of the value.</typeparam>
+    /// <typeparam name="T">Type of the value which the cached <see cref="Task"/> produces.</typeparam>
     /// <param name="cache"></param>
     /// <param name="key">Key that matches the wanted return value.</param>
     /// <param name="taskFactory">Function that is run only if a Task for the given key is not already present in the cache.</param>

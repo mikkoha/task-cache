@@ -2,22 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Microsoft.Extensions.Caching.Memory</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Microsoft.Extensions.Caching.Memory</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
-    <RepositoryUrl>https://github.com/mikkoha/task-cache</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
     <Authors>Mikko Haapanen, Michael Monsour</Authors>
     <Copyright>Copyright © 2016-2023 Mikko Haapanen, Michael Monsour</Copyright>
     <Description>Adds support for caching Task objects (rather than results) in Microsoft.Extensions.Caching.Memory.MemoryCache with GetOrCreateTask(), eliminating unnecessary duplicate async operations.</Description>
-    <PackageProjectUrl>https://github.com/mikkoha/task-cache</PackageProjectUrl>
-    <PackageTags>Cache;Caching;MemoryCache;Task</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Cache;Caching;MemoryCache;Task</PackageTags>
+    <PackageProjectUrl>https://github.com/mikkoha/task-cache</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/mikkoha/task-cache</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
